@@ -129,6 +129,27 @@ class nusoap_client extends nusoap_base  {
 		}
 	}
 
+    protected function objectToArray($d)
+    {
+        if (is_object($d)) {
+            // Gets the properties of the given object
+            // with get_object_vars function
+            $d = get_object_vars($d);
+        }
+
+        if (is_array($d)) {
+            /*
+            * Return array converted to object
+            * Using __FUNCTION__ (Magic constant)
+            * for recursive call
+            */
+            return array_map(__METHOD__, $d);
+        } else {
+            // Return array
+            return $d;
+        }
+    }
+
 	/**
 	* calls method, returns PHP native type
 	*
@@ -164,6 +185,11 @@ class nusoap_client extends nusoap_base  {
 		$this->faultstring = '';
 		$this->faultcode = '';
 		$this->opData = array();
+
+        if (is_object($params)) {
+            $this->debug("converting params from object to array");
+            $params = $this->objectToArray($params);
+        }
 		
 		$this->debug("call: operation=$operation, namespace=$namespace, soapAction=$soapAction, rpcParams=$rpcParams, style=$style, use=$use, endpointType=$this->endpointType");
 		$this->appendDebug('params=' . $this->varDump($params));
@@ -200,11 +226,7 @@ class nusoap_client extends nusoap_base  {
 			}
             $nsPrefix = $this->wsdl->getPrefixFromNamespace($namespace);
 			// serialize payload
-			if (is_object($params)) {
-                $this->debug("serializing param array for WSDL operation $operation");
-                $params = json_decode(json_encode($params), true);
-                $payload = $this->wsdl->serializeRPCParameters($operation,'input',$params,$this->bindingType);
-            } elseif (is_string($params)) {
+			if (is_string($params)) {
 				$this->debug("serializing param string for WSDL operation $operation");
 				$payload = $params;
 			} elseif (is_array($params)) {
@@ -242,9 +264,9 @@ class nusoap_client extends nusoap_base  {
 			// serialize 
 			$payload = '';
 			if (is_string($params)) {
-				$this->debug("serializing param string for operation $operation");
-				$payload = $params;
-			} elseif (is_array($params)) {
+                $this->debug("serializing param string for operation $operation");
+                $payload = $params;
+            } elseif (is_array($params)) {
 				$this->debug("serializing param array for operation $operation");
 				foreach($params as $k => $v){
 					$payload .= $this->serialize_val($v,$k,false,false,false,false,$use);
