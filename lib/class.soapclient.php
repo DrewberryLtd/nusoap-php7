@@ -202,7 +202,7 @@ class nusoap_client extends nusoap_base  {
 			// serialize payload
 			if (is_object($params)) {
                 $this->debug("serializing param array for WSDL operation $operation");
-                $params = (array) json_decode(json_encode($params), true);
+                $params = json_decode(json_encode($params), true);
                 $payload = $this->wsdl->serializeRPCParameters($operation,'input',$params,$this->bindingType);
             } elseif (is_string($params)) {
 				$this->debug("serializing param string for WSDL operation $operation");
@@ -715,6 +715,7 @@ class nusoap_client extends nusoap_base  {
 		// instantiate proxy object
 		eval("\$proxy = new nusoap_proxy_$r('');");
 		// transfer current wsdl data to the proxy thereby avoiding parsing the wsdl twice
+		$proxy = new stdClass();
 		$proxy->endpointType = 'wsdl';
 		$proxy->wsdlFile = $this->wsdlFile;
 		$proxy->wsdl = $this->wsdl;
