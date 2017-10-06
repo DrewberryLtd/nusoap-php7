@@ -69,10 +69,6 @@ require_once('class.wsdl.php');
 // server class
 require_once('class.soap_server.php');*/
 
-// class variable emulation
-// cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = 9;
-
 /**
 *
 * nusoap_base
@@ -133,6 +129,14 @@ class nusoap_base {
 	 * @access private
 	 */
 	var $debugLevel;
+
+    /**
+     * the global debug level for new instances
+     *
+     * @var int
+     * @access private
+     */
+    private static $globalDebugLevel = 9;
 
     /**
 	* set schema version
@@ -223,7 +227,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function __construct() {
-		$this->debugLevel = $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
+		$this->debugLevel = self::$globalDebugLevel;
 	}
 
 	/**
@@ -233,7 +237,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function getGlobalDebugLevel() {
-		return $GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'];
+		return self::$globalDebugLevel;
 	}
 
 	/**
@@ -243,7 +247,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function setGlobalDebugLevel($level) {
-		$GLOBALS['_transient']['static']['nusoap_base']['globalDebugLevel'] = $level;
+        self::$globalDebugLevel = $level;
 	}
 
 	/**
